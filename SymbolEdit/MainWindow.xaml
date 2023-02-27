@@ -4,9 +4,150 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SymbolEdit"
+        xmlns:myelemnent="clr-namespace:SymbolEdit.MyElemnent"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="MainWindow"
+        Height="600"
+        Width="750">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="行: "
+                       Margin="10 0"
+                       VerticalAlignment="Center" />
+            <TextBox Text="{Binding ElementName=gridLine,Path=Row,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                     Width="100"
+                     VerticalAlignment="Center" />
+            <TextBlock Text="列: "
+                       Margin="10 0"
+                       VerticalAlignment="Center" />
+            <TextBox Text="{Binding ElementName=gridLine,Path=Column,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                     Width="100"
+                     VerticalAlignment="Center" />
 
+        </StackPanel>
+
+        <Border BorderThickness="1"
+                Grid.Row="1"
+                BorderBrush="Red"
+                Margin="10">
+
+            <Canvas x:Name="canvas">
+                <Line Panel.ZIndex="10"
+                      X1="10"
+                      Y1="10"
+                      X2="100"
+                      Y2="100"
+                      Stroke="Green"
+                      StrokeThickness="10" />
+                <Rectangle Fill="Blue"
+                           RadiusX="10"
+                           RadiusY="10"
+                           Stroke="Azure"
+                           Width="250"
+                           Height="200"
+                           Canvas.Left="210"
+                           Canvas.Top="101" />
+
+                <Ellipse Fill="Red"
+                         Stroke="Green"
+                         Width="100"
+                         Height="100"
+                         Panel.ZIndex="1"
+                         Canvas.Left="65"
+                         Canvas.Top="45" />
+
+                <Path Stroke="SeaGreen"
+                      Canvas.Left="80"
+                      Canvas.Top="250"
+                      StrokeThickness="5">
+                    <Path.Data>
+                        <PathGeometry>
+                            <PathFigureCollection>
+                                <PathFigure StartPoint="0,0">
+                                    <LineSegment Point="10,10" />
+                                    <LineSegment Point="10,20" />
+                                    <LineSegment Point="0,0" />
+                                </PathFigure>
+                                <PathFigure StartPoint="20,10">
+                                    <LineSegment Point="10,20" />
+                                </PathFigure>
+                            </PathFigureCollection>
+                        </PathGeometry>
+                    </Path.Data>
+                </Path>
+
+                <Path Stroke="SeaGreen"
+                      StrokeThickness="5"
+                      Canvas.Left="500"
+                      Canvas.Top="45">
+                    <Path.Data>
+                        <EllipseGeometry Center="50,50"
+                                         RadiusY="50"
+                                         RadiusX="50" />
+                    </Path.Data>
+                </Path>
+
+                <Path  Stroke="Green"
+                       StrokeThickness="3">
+                    <Path.Data>
+                        <PathGeometry>
+                            <PathFigure StartPoint="100,10">
+                                <BezierSegment Point1="220,40"
+                                               Point2="300,430"
+                                               Point3="600,330"
+                                               IsSmoothJoin="True" />
+                            </PathFigure>
+                        </PathGeometry>
+                    </Path.Data>
+                </Path>
+
+                <Path Stroke="Red"
+                      Fill="DarkGreen"
+                      Data="M 100,100 A 50,30 0 0 0 100,200 A 65 50 0 
+                  0 1 100,300" />
+
+                <Path Stroke="Red"
+                      Canvas.Left="50"
+                      Canvas.Top="250"
+                      Fill="DarkGreen"
+                      Data="M 0 0 l 0 4.4 l 10.6 0 a 1.9 1.5 0 0 1 1.9 1.5
+                  l 0 4 a 2 2.3 0 0 1 -2 2.3 l -2.7 0 
+                  a 4.4 5.5 0 0 0 -4.4 5.5 l 0 7.7 l 4.6 0 l 0 -7.0
+                  a 1.8 1.9 0 0 1 1.8 -1.9 l 2.6 0
+                  a 4.5 4.5 0 0 0 4.5 -4.5 l 0 -6.8
+                  a 5.7 5.3 0 0 0 -5.7 -5.3z
+                  m 3.6 28.1 l4.7 0 l 0 4.7 l -4.7 0z" />
+
+                <Path Stroke="Red"
+                      Canvas.Left="50"
+                      Canvas.Top="300"
+                      Fill="DarkGreen"
+                      Data="M 15 7.5 a 7.5 7.5 0 0 0 0 15 a 7.5 7.5 0 0 0 0 -15
+                  M 19 0.6 A 15 15 0 0 0 11.2 0.6 L 12.2 3.9 A 11.5 11.5 0 0 0 7.0 6.8 L 4.5 4.3
+                  A 15 15 0 0 0 0.5 11.4 L 3.8 12.2 A 11.5 11.5 0 0 0 3.9 18 L 0.7 19
+                  A 15 15 0 0 0 4.4 25.5 L 6.9 23 A 11.5 11.5 0 0 0 12 26.1 L 11 29.5
+                  A 15 15 0 0 0 18.8 29.4 L 17.8 26.1 A 11.5 11.5 0 0 0 23 23.2 L25.4 25.7
+                  A 15 15 0 0 0 29.5 18.7L 26.1 17.8 A 11.5 11.5 0 0 0 26 11.9L 29.4 11
+                  A 15 15 0 0 0 25.5 4.5 L 23.2 6.9 A 11.5 11.5 0 0 0 18 3.9 Z" />
+
+                <myelemnent:GridLine x:Name="gridLine"
+                                     GridLineStyle="POINT"
+                                     Stroke="Black"
+                                     StrokeThickness="1"
+                                     Row="20"
+                                     Column="20" />
+
+                <myelemnent:PointGridLine x:Name="pointGridLine"
+                                          Width="400"
+                                          Height="400"
+                                          Row="20"
+                                          Column="20" />
+
+            </Canvas>
+        </Border>
     </Grid>
 </Window>

@@ -23,6 +23,14 @@ namespace SymbolEdit
         public MainWindow()
         {
             InitializeComponent();
+            this.canvas.SizeChanged += MainWindow_SizeChanged;
         }
+
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            gridLine.Height = e.NewSize.Height;
+            gridLine.Width = e.NewSize.Width;
+        }
+
     }
 }
