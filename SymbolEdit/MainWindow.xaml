@@ -51,8 +51,9 @@
                 Margin="10"
                 Grid.Row="1">
             <Canvas x:Name="canvas"
+                    Cursor="SizeNWSE"
                     Background="Transparent"
-                    MouseDown="Canvas_MouseDown"
+                    PreviewMouseDown="Canvas_MouseDown"
                     PreviewMouseMove="Canvas_MouseMove"
                     MouseUp="Canvas_MouseUp">
 
@@ -65,18 +66,26 @@
                       Stroke="Green"
                       StrokeThickness="3" />
 
+                <Ellipse Fill="Red"
+                         x:Name="ellipse"
+                         Stroke="Green"
+                         Width="100"
+                         Height="100"
+                         Panel.ZIndex="1"
+                         Canvas.Left="65"
+                         Canvas.Top="45" />
+
                 <Rectangle Fill="Blue"
-                           MouseDown="Rectangle_MouseDown"
                            RadiusX="27.9"
                            RadiusY="27.9"
                            Stroke="Azure"
                            Width="250"
                            Height="200"
                            Canvas.Left="210"
-                           Canvas.Top="100">
-                </Rectangle>
+                           Canvas.Top="100" />
 
                 <myelemnent:BorderLine x:Name="borderLine"
+                                       Panel.ZIndex="999"
                                        RectSize="7"
                                        Stroke="#9ebcf3"
                                        StrokeThickness="2" />

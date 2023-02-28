@@ -25,7 +25,10 @@ namespace SymbolEdit
         {
             InitializeComponent();
             this.canvas.SizeChanged += MainWindow_SizeChanged;
+            borderLine.MoveElement += MoveElement;
+            borderLine.MoveElementOver += MoveElementOver;
         }
+
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -67,19 +70,53 @@ namespace SymbolEdit
 
         private bool isLeftDown = false;
         private bool isRightDown = false;
+        private Shape? ordShape;
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            if (e.Source is Shape shape)
             {
-                isLeftDown = e.ChangedButton == MouseButton.Left;
-                isRightDown = e.ChangedButton == MouseButton.Right;
+                if (ordShape != null)
+                {
+                    ordShape!.MouseDown -= borderLine.MouseDownEventFunc;
+                    ordShape!.MouseMove -= borderLine.MouseMoveEventFunc;
+                    ordShape!.MouseUp -= borderLine.MouseUpEventFunc;
+                }
+
+                shape.MouseDown += borderLine.MouseDownEventFunc;
+                shape.MouseMove += borderLine.MouseMoveEventFunc;
+                shape.MouseUp += borderLine.MouseUpEventFunc;
+                var x1 = Canvas.GetLeft(shape);
+                var y1 = Canvas.GetTop(shape);
+                borderLine.LeftTopX = x1;
+                borderLine.LeftTopY = y1;
+                borderLine.RightBottomX = x1 + shape.Width;
+                borderLine.RightBottomY = y1 + shape.Height;
+                borderLine.IsVisibility = true;
+                ordShape = shape;
             }
+            else
+            {
+                if (ordShape != null)
+                {
+                    ordShape!.MouseDown -= borderLine.MouseDownEventFunc;
+                    ordShape!.MouseMove -= borderLine.MouseMoveEventFunc;
+                    ordShape!.MouseUp -= borderLine.MouseUpEventFunc;
+                    ordShape = null;
+                }
+                borderLine.IsVisibility = false;
+            }
+
+            //if (e.ButtonState == MouseButtonState.Pressed)
+            //{
+            //    isLeftDown = e.ChangedButton == MouseButton.Left;
+            //    isRightDown = e.ChangedButton == MouseButton.Right;
+            //}
         }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            isLeftDown = false;
-            isRightDown = false;
+            //isLeftDown = false;
+            //isRightDown = false;
         }
 
         bool isVis = false;
@@ -95,6 +132,29 @@ namespace SymbolEdit
                 borderLine.RightBottomY = y1 + rectangle.Height;
                 isVis = !isVis;
                 borderLine.IsVisibility = isVis;
+            }
+        }
+
+
+        private void MoveElement(Point point)
+        {
+            if (ordShape != null)
+            {
+                Canvas.SetLeft(ordShape, point.X);
+                Canvas.SetTop(ordShape, point.Y); 
+            }
+        }
+
+        private void MoveElementOver()
+        {
+            if (ordShape != null)
+            {
+                var x1 = Canvas.GetLeft(ordShape);
+                var y1 = Canvas.GetTop(ordShape);
+                borderLine.LeftTopX = x1;
+                borderLine.LeftTopY = y1;
+                borderLine.RightBottomX = x1 + ordShape.Width;
+                borderLine.RightBottomY = y1 + ordShape.Height;
             }
         }
     }

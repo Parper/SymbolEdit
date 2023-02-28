@@ -11,9 +11,9 @@ namespace SymbolEdit.MyElemnent
 
         public BorderLine()
         {
-            this.MouseDown += BorderLine_MouseDown;
-            this.MouseMove += BorderLine_MouseMove;
-            this.MouseUp += BorderLine_MouseUp;
+            this.MouseDown += MouseDownEventFunc;
+            this.MouseMove += MouseMoveEventFunc;
+            this.MouseUp += MouseUpEventFunc;
         }
 
         #endregion
@@ -132,7 +132,7 @@ namespace SymbolEdit.MyElemnent
         /// <returns>在矩形中返回true，否则返回false.</returns>
         internal bool PointIsInsideRectangle(Point point)
         {
-            if (this.Verify())
+            if (this.Verify() && IsVisibility)
             {
                 if (point.X < LeftTopX || point.Y < LeftTopY || point.X > RightBottomX || point.Y > RightBottomY)
                 {
@@ -148,20 +148,22 @@ namespace SymbolEdit.MyElemnent
         /// <summary>
         /// 是否命中关键点.
         /// </summary>
-        internal void IsHitPoint(Point point) 
+        internal void IsHitPoint(Point point)
         {
-        
+
         }
 
         #endregion Internal Methods
 
         #region Private Methods and Members
 
+        private bool IsRefresh = true;
+
         private BorderPoints? borderPoints;
 
         private static void RefreshBorderLineDraw(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is BorderLine borderLine)
+            if (d is BorderLine borderLine && borderLine.IsRefresh)
             {
                 borderLine.InvalidateVisual();
             }
@@ -244,23 +246,43 @@ namespace SymbolEdit.MyElemnent
 
         public Action? SizeChange;
 
+        public Action<Point>? MoveElement;
+
+        public Action? MoveElementOver;
+
         #endregion
 
         #region Event
 
-        private void BorderLine_MouseDown(object sender, MouseButtonEventArgs e)
+        bool isSelectedPoint = false;
+        Point selectedPoint;
+        public void MouseDownEventFunc(object sender, MouseButtonEventArgs e)
         {
             var point = e.GetPosition(this);
-            PointIsInsideRectangle(point);
+            if (PointIsInsideRectangle(point))
+            {
+                isSelectedPoint = true;
+                selectedPoint = point;
+            }
         }
 
-        private void BorderLine_MouseMove(object sender, MouseEventArgs e)
+        public void MouseMoveEventFunc(object sender, MouseEventArgs e)
         {
-            var point = e.GetPosition(this);
+            if (isSelectedPoint)
+            {
+                var point = e.GetPosition(this);
+                var leftTop = new Point(LeftTopX + (point.X - selectedPoint.X), LeftTopY + (point.Y - selectedPoint.Y));
+                MoveElement?.Invoke(leftTop);
+            }
         }
 
-        private void BorderLine_MouseUp(object sender, MouseButtonEventArgs e)
+        public void MouseUpEventFunc(object sender, MouseButtonEventArgs e)
         {
+            if (isSelectedPoint)
+            {
+                //MoveElementOver?.Invoke();
+                isSelectedPoint = false;
+            }
         }
 
         #endregion
