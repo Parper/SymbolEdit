@@ -50,12 +50,11 @@
         <Border BorderThickness="1"
                 Margin="10"
                 Grid.Row="1">
+            <!--Cursor="SizeWE"-->
             <Canvas x:Name="canvas"
-                    Cursor="SizeNWSE"
                     Background="Transparent"
                     PreviewMouseDown="Canvas_MouseDown"
-                    PreviewMouseMove="Canvas_MouseMove"
-                    MouseUp="Canvas_MouseUp">
+                    PreviewMouseMove="Canvas_MouseMove">
 
                 <Line Panel.ZIndex="10"
                       x:Name="line"

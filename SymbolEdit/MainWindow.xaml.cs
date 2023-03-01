@@ -26,9 +26,7 @@ namespace SymbolEdit
             InitializeComponent();
             this.canvas.SizeChanged += MainWindow_SizeChanged;
             borderLine.MoveElement += MoveElement;
-            borderLine.MoveElementOver += MoveElementOver;
         }
-
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -73,34 +71,25 @@ namespace SymbolEdit
         private Shape? ordShape;
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.Source is Shape shape)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                if (ordShape != null)
+                if (e.Source is Shape shape)
                 {
-                    ordShape!.MouseDown -= borderLine.MouseDownEventFunc;
-                    ordShape!.MouseMove -= borderLine.MouseMoveEventFunc;
-                    ordShape!.MouseUp -= borderLine.MouseUpEventFunc;
+                    borderLine.SetCurElement(shape);
+                    var x1 = Canvas.GetLeft(shape);
+                    var y1 = Canvas.GetTop(shape);
+                    borderLine.LeftTopX = x1;
+                    borderLine.LeftTopY = y1;
+                    borderLine.RightBottomX = x1 + shape.Width;
+                    borderLine.RightBottomY = y1 + shape.Height;
+                    borderLine.IsVisibility = true;
+                    ordShape = shape;
                 }
-
-                shape.MouseDown += borderLine.MouseDownEventFunc;
-                shape.MouseMove += borderLine.MouseMoveEventFunc;
-                shape.MouseUp += borderLine.MouseUpEventFunc;
-                var x1 = Canvas.GetLeft(shape);
-                var y1 = Canvas.GetTop(shape);
-                borderLine.LeftTopX = x1;
-                borderLine.LeftTopY = y1;
-                borderLine.RightBottomX = x1 + shape.Width;
-                borderLine.RightBottomY = y1 + shape.Height;
-                borderLine.IsVisibility = true;
-                ordShape = shape;
             }
-            else
+            else if (e.ChangedButton == MouseButton.Right)
             {
                 if (ordShape != null)
                 {
-                    ordShape!.MouseDown -= borderLine.MouseDownEventFunc;
-                    ordShape!.MouseMove -= borderLine.MouseMoveEventFunc;
-                    ordShape!.MouseUp -= borderLine.MouseUpEventFunc;
                     ordShape = null;
                 }
                 borderLine.IsVisibility = false;
@@ -113,49 +102,17 @@ namespace SymbolEdit
             //}
         }
 
-        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            //isLeftDown = false;
-            //isRightDown = false;
-        }
 
-        bool isVis = false;
-        private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Rectangle rectangle)
-            {
-                var x1 = Canvas.GetLeft(rectangle);
-                var y1 = Canvas.GetTop(rectangle);
-                borderLine.LeftTopX = x1;
-                borderLine.LeftTopY = y1;
-                borderLine.RightBottomX = x1 + rectangle.Width;
-                borderLine.RightBottomY = y1 + rectangle.Height;
-                isVis = !isVis;
-                borderLine.IsVisibility = isVis;
-            }
-        }
-
-
-        private void MoveElement(Point point)
+        private void MoveElement(OperationParam operationParam)
         {
             if (ordShape != null)
             {
-                Canvas.SetLeft(ordShape, point.X);
-                Canvas.SetTop(ordShape, point.Y); 
+                Canvas.SetLeft(ordShape, operationParam.Left);
+                Canvas.SetTop(ordShape, operationParam.Top);
+                ordShape.Width = operationParam.Width;
+                ordShape.Height = operationParam.Height;
             }
         }
 
-        private void MoveElementOver()
-        {
-            if (ordShape != null)
-            {
-                var x1 = Canvas.GetLeft(ordShape);
-                var y1 = Canvas.GetTop(ordShape);
-                borderLine.LeftTopX = x1;
-                borderLine.LeftTopY = y1;
-                borderLine.RightBottomX = x1 + ordShape.Width;
-                borderLine.RightBottomY = y1 + ordShape.Height;
-            }
-        }
     }
 }

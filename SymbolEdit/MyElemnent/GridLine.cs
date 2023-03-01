@@ -201,7 +201,7 @@ namespace SymbolEdit.MyElemnent
 
         #endregion
     }
-
+    
     public enum GridLineStyle
     {
         /// <summary>

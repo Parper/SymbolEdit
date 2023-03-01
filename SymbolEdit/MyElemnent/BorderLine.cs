@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace SymbolEdit.MyElemnent
 {
@@ -14,6 +18,7 @@ namespace SymbolEdit.MyElemnent
             this.MouseDown += MouseDownEventFunc;
             this.MouseMove += MouseMoveEventFunc;
             this.MouseUp += MouseUpEventFunc;
+            this.MouseLeave += MouseLeaveEventFunc;
         }
 
         #endregion
@@ -105,6 +110,10 @@ namespace SymbolEdit.MyElemnent
 
         #region Protected Methods and Properties
 
+        /// <summary>
+        /// 绘制.
+        /// </summary>
+        /// <param name="drawingContext"></param>
         protected override void OnRender(DrawingContext drawingContext)
         {
             if (this.Verify() && this.IsVisibility)
@@ -118,7 +127,6 @@ namespace SymbolEdit.MyElemnent
                 DrawPoint(drawingContext);
             }
         }
-
 
 
         #endregion
@@ -146,20 +154,183 @@ namespace SymbolEdit.MyElemnent
         }
 
         /// <summary>
+        /// 点是否在矩形内.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        internal bool PointIsInsideRectangle(Rect rect, Point point)
+        {
+            if (point.X < rect.X || point.Y < rect.Y || point.X > rect.X + rect.Width || point.Y > rect.Y + rect.Height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// 是否命中关键点.
         /// </summary>
-        internal void IsHitPoint(Point point)
+        internal BorderPointsEnum IsHitPoint(Point point)
         {
+            if (borderPoints == null || !IsVisibility)
+            {
+                return BorderPointsEnum.None;
+            }
 
+            Size size = new Size(RectSize, RectSize);
+            var curRect = new Rect(new Point(borderPoints!.LeftTop.X - RectSize, borderPoints!.LeftTop.Y - RectSize), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.LeftTop;
+            }
+            curRect = new Rect(new Point(borderPoints!.TopCentre.X, borderPoints!.TopCentre.Y - RectSize), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.TopCentre;
+            }
+            curRect = new Rect(new Point(borderPoints!.RightTop.X, borderPoints!.RightTop.Y - RectSize), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.RightTop;
+            }
+            curRect = new Rect(new Point(borderPoints!.RightCentre.X, borderPoints!.RightCentre.Y), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.RightCentre;
+            }
+            curRect = new Rect(new Point(borderPoints!.RightBottom.X, borderPoints!.RightBottom.Y), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.RightBottom;
+            }
+            curRect = new Rect(new Point(borderPoints!.BottomCentre.X, borderPoints!.BottomCentre.Y), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.BottomCentre;
+            }
+            curRect = new Rect(new Point(borderPoints!.LeftBottom.X - RectSize, borderPoints!.LeftBottom.Y), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.LeftBottom;
+            }
+            curRect = new Rect(new Point(borderPoints!.LeftCentre.X - RectSize, borderPoints!.LeftCentre.Y), size);
+            if (PointIsInsideRectangle(curRect, point))
+            {
+                return BorderPointsEnum.LeftCentre;
+            }
+
+            return BorderPointsEnum.None;
+        }
+
+        /// <summary>
+        /// 设置当前元素.
+        /// </summary>
+        /// <param name="element"></param>
+        internal void SetCurElement(FrameworkElement element)
+        {
+            ClearCurElement();
+            curElement = element;
+            RegisterEvent(curElement);
+        }
+
+        /// <summary>
+        /// 清空当前元素.
+        /// </summary>
+        internal void ClearCurElement()
+        {
+            if (curElement != null)
+            {
+                CancelEvent(curElement);
+            }
+        }
+
+        /// <summary>
+        /// 操作.
+        /// </summary>
+        /// <param name="pointsEnum"></param>
+        /// <param name="point"></param>
+        internal void Operation(BorderPointsEnum pointsEnum, Point point)
+        {
+            var left = LeftTopX;
+            var top = LeftTopY;
+            var width = RightBottomX - LeftTopX;
+            var height = RightBottomY - LeftTopY;
+            switch (pointsEnum)
+            {
+                case BorderPointsEnum.LeftTop:
+                    width -= point.X - left;
+                    height -= point.Y - top;
+                    left = point.X;
+                    top = point.Y;
+                    break;
+                case BorderPointsEnum.TopCentre:
+                    height -= point.Y - top;
+                    top = point.Y;
+                    break;
+                case BorderPointsEnum.RightTop:
+                    width += point.X - borderPoints!.RightTop.X;
+                    height -= point.Y - borderPoints!.RightTop.Y;
+                    top = point.Y;
+                    break;
+                case BorderPointsEnum.RightCentre:
+                    width += point.X - borderPoints!.RightCentre.X;
+                    break;
+                case BorderPointsEnum.RightBottom:
+                    width += point.X - borderPoints!.RightCentre.X;
+                    height += point.Y - borderPoints!.BottomCentre.Y;
+                    break;
+                case BorderPointsEnum.BottomCentre:
+                    height += point.Y - borderPoints!.BottomCentre.Y;
+                    break;
+                case BorderPointsEnum.LeftBottom:
+                    width -= point.X - borderPoints!.LeftBottom.X;
+                    height += point.Y - borderPoints!.LeftBottom.Y;
+                    left = point.X;
+                    break;
+                case BorderPointsEnum.LeftCentre:
+                    width -= point.X - borderPoints!.LeftBottom.X;
+                    left = point.X;
+                    break;
+            }
+            if (width > 0 && height > 0)
+            {
+                MoveElement?.Invoke(new OperationParam()
+                {
+                    Left = left,
+                    Top = top,
+                    Width = width,
+                    Height = height,
+                });
+                LeftTopX = left;
+                LeftTopY = top;
+                RightBottomX = LeftTopX + width;
+                RightBottomY = LeftTopY + height;
+                RefreshBorderLineDraw(this, new DependencyPropertyChangedEventArgs());
+            }
         }
 
         #endregion Internal Methods
 
         #region Private Methods and Members
 
+        /// <summary>
+        /// 关键点枚举.
+        /// </summary>
+        private BorderPointsEnum curBorPointEnum = BorderPointsEnum.None;
+
+        /// <summary>
+        /// 是否刷新
+        /// </summary>
         private bool IsRefresh = true;
 
+        /// <summary>
+        /// 关键点.
+        /// </summary>
         private BorderPoints? borderPoints;
+
+        private FrameworkElement? curElement;
 
         private static void RefreshBorderLineDraw(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -240,13 +411,77 @@ namespace SymbolEdit.MyElemnent
             drawingContext.DrawEllipse(PointColor, new Pen(PointColor, 3), borderPoints!.Centre, 3, 3);
         }
 
+        /// <summary>
+        /// 设置光标样式
+        /// </summary>
+        /// <param name="bPE"></param>
+        private void SetCursor(BorderPointsEnum bPE)
+        {
+            switch (bPE)
+            {
+                case BorderPointsEnum.None:
+                    this.Cursor = Cursors.Arrow;
+                    if (curElement != null)
+                        curElement.Cursor = Cursors.Arrow;
+                    break;
+                case BorderPointsEnum.LeftTop:
+                case BorderPointsEnum.RightBottom:
+                    this.Cursor = Cursors.SizeNWSE;
+                    if (curElement != null)
+                        curElement.Cursor = Cursors.SizeNWSE;
+                    break;
+                case BorderPointsEnum.RightTop:
+                case BorderPointsEnum.LeftBottom:
+                    this.Cursor = Cursors.SizeNESW;
+                    if (curElement != null)
+                        curElement.Cursor = Cursors.SizeNESW;
+                    break;
+                case BorderPointsEnum.TopCentre:
+                case BorderPointsEnum.BottomCentre:
+                    this.Cursor = Cursors.SizeNS;
+                    if (curElement != null)
+                        curElement.Cursor = Cursors.SizeNS;
+                    break;
+                case BorderPointsEnum.RightCentre:
+                case BorderPointsEnum.LeftCentre:
+                    this.Cursor = Cursors.SizeWE;
+                    if (curElement != null)
+                        curElement.Cursor = Cursors.SizeWE;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 注册事件.
+        /// </summary>
+        /// <param name="curElement">元素</param>
+        private void RegisterEvent(FrameworkElement curElement)
+        {
+            curElement.MouseDown += MouseDownEventFunc;
+            curElement.MouseMove += MouseMoveEventFunc;
+            curElement.MouseUp += MouseUpEventFunc;
+            curElement.MouseLeave += MouseLeaveEventFunc;
+        }
+
+        /// <summary>
+        /// 注销事件.
+        /// </summary>
+        /// <param name="curElement">元素</param>
+        private void CancelEvent(FrameworkElement curElement)
+        {
+            curElement.MouseDown -= MouseDownEventFunc;
+            curElement.MouseMove -= MouseMoveEventFunc;
+            curElement.MouseUp -= MouseUpEventFunc;
+            curElement.MouseLeave -= MouseLeaveEventFunc;
+        }
+
         #endregion
 
         #region Public Methods and Members
 
         public Action? SizeChange;
 
-        public Action<Point>? MoveElement;
+        public Action<OperationParam>? MoveElement;
 
         public Action? MoveElementOver;
 
@@ -255,24 +490,60 @@ namespace SymbolEdit.MyElemnent
         #region Event
 
         bool isSelectedPoint = false;
+        bool isOperation = false;
         Point selectedPoint;
+        Point ordLeftTop;
         public void MouseDownEventFunc(object sender, MouseButtonEventArgs e)
         {
             var point = e.GetPosition(this);
-            if (PointIsInsideRectangle(point))
+            if (curBorPointEnum == BorderPointsEnum.None)
             {
-                isSelectedPoint = true;
+                if (PointIsInsideRectangle(point))
+                {
+                    this.Cursor = Cursors.ScrollAll;
+                    if (this.curElement != null)
+                        this.curElement.Cursor = Cursors.ScrollAll;
+                    isSelectedPoint = true;
+                    selectedPoint = point;
+                    ordLeftTop = new Point(LeftTopX, LeftTopY);
+                    this.InvalidateVisual();
+                }
+            }
+            else
+            {
                 selectedPoint = point;
+                isOperation = true;
             }
         }
 
         public void MouseMoveEventFunc(object sender, MouseEventArgs e)
         {
+            var point = e.GetPosition(this);
             if (isSelectedPoint)
             {
-                var point = e.GetPosition(this);
-                var leftTop = new Point(LeftTopX + (point.X - selectedPoint.X), LeftTopY + (point.Y - selectedPoint.Y));
-                MoveElement?.Invoke(leftTop);
+                var leftTop = new Point(ordLeftTop.X + (point.X - selectedPoint.X), ordLeftTop.Y + (point.Y - selectedPoint.Y));
+                var operationParam = new OperationParam()
+                {
+                    Left = leftTop.X,
+                    Top = leftTop.Y,
+                    Width = RightBottomX - LeftTopX,
+                    Height = RightBottomY - LeftTopY,
+                };
+                MoveElement?.Invoke(operationParam);
+                LeftTopX = operationParam.Left;
+                LeftTopY = operationParam.Top;
+                RightBottomX = LeftTopX + operationParam.Width;
+                RightBottomY = LeftTopY + operationParam.Height;
+                RefreshBorderLineDraw(this, new DependencyPropertyChangedEventArgs());
+            }
+            else if (isOperation)
+            {
+                Operation(curBorPointEnum, point);
+            }
+            else
+            {
+                curBorPointEnum = IsHitPoint(point);
+                SetCursor(curBorPointEnum);
             }
         }
 
@@ -280,11 +551,30 @@ namespace SymbolEdit.MyElemnent
         {
             if (isSelectedPoint)
             {
-                //MoveElementOver?.Invoke();
+                MoveElementOver?.Invoke();
                 isSelectedPoint = false;
             }
+            if (isOperation)
+            {
+                isOperation = false;
+            }
+        }
+
+        private void MouseLeaveEventFunc(object sender, MouseEventArgs e)
+        {
+            if (!isSelectedPoint && !isOperation)
+                SetCursor(BorderPointsEnum.None);
         }
 
         #endregion
     }
+
+    public struct OperationParam
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
 }
