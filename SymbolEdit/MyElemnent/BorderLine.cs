@@ -105,6 +105,25 @@ namespace SymbolEdit.MyElemnent
         public static readonly DependencyProperty RectSizeProperty =
             DependencyProperty.Register("RectSize", typeof(double), typeof(BorderLine), new PropertyMetadata(3.0, new PropertyChangedCallback(RefreshBorderLineDraw)));
 
+        public bool IsMovingGetNearestPoint
+        {
+            get { return (bool)GetValue(IsMovingGetNearestPointProperty); }
+            set { SetValue(IsMovingGetNearestPointProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsMovingGetNearestPoint.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsMovingGetNearestPointProperty =
+            DependencyProperty.Register("IsMovingGetNearestPoint", typeof(bool), typeof(BorderLine), new PropertyMetadata(false, new PropertyChangedCallback(RefreshBorderLineDraw)));
+
+        public bool IsOperationingGetNearestPoint
+        {
+            get { return (bool)GetValue(IsOperationingGetNearestPointProperty); }
+            set { SetValue(IsOperationingGetNearestPointProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsOperationingGetNearestPoint.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsOperationingGetNearestPointProperty =
+            DependencyProperty.Register("IsOperationingGetNearestPoint", typeof(bool), typeof(BorderLine), new PropertyMetadata(false, new PropertyChangedCallback(RefreshBorderLineDraw)));
 
         #endregion Dynamic Properties
 
@@ -127,7 +146,6 @@ namespace SymbolEdit.MyElemnent
                 DrawPoint(drawingContext);
             }
         }
-
 
         #endregion
 
@@ -251,7 +269,7 @@ namespace SymbolEdit.MyElemnent
         /// </summary>
         /// <param name="pointsEnum"></param>
         /// <param name="point"></param>
-        internal void Operation(BorderPointsEnum pointsEnum, Point point)
+        internal void OperationElementFunc(BorderPointsEnum pointsEnum, Point point)
         {
             var left = LeftTopX;
             var top = LeftTopY;
@@ -294,21 +312,32 @@ namespace SymbolEdit.MyElemnent
                     left = point.X;
                     break;
             }
-            if (width > 0 && height > 0)
+
+            var operationParam = new OperationParam()
             {
-                MoveElement?.Invoke(new OperationParam()
-                {
-                    Left = left,
-                    Top = top,
-                    Width = width,
-                    Height = height,
-                });
-                LeftTopX = left;
-                LeftTopY = top;
-                RightBottomX = LeftTopX + width;
-                RightBottomY = LeftTopY + height;
-                RefreshBorderLineDraw(this, new DependencyPropertyChangedEventArgs());
-            }
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = height,
+            };
+            SendOperationParam(operationParam);
+        }
+
+        /// <summary>
+        /// 移动元素.
+        /// </summary>
+        /// <param name="point"></param>
+        internal void MoveElementFunc(Point point)
+        {
+            var leftTop = new Point(ordLeftTop.X + (point.X - selectedPoint.X), ordLeftTop.Y + (point.Y - selectedPoint.Y));
+            var operationParam = new OperationParam()
+            {
+                Left = leftTop.X,
+                Top = leftTop.Y,
+                Width = RightBottomX - LeftTopX,
+                Height = RightBottomY - LeftTopY,
+            };
+            SendOperationParam(operationParam);
         }
 
         #endregion Internal Methods
@@ -475,27 +504,58 @@ namespace SymbolEdit.MyElemnent
             curElement.MouseLeave -= MouseLeaveEventFunc;
         }
 
+        /// <summary>
+        /// 是否获取最近点.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="isOk"></param>
+        /// <returns></returns>
+        private Point IsGetNearestPoint(Point point, bool isOk)
+        {
+            if (isOk && GetNearestPoint != null)
+            {
+                return GetNearestPoint!.Invoke(point);
+            }
+            return point;
+        }
+
+        /// <summary>
+        /// 发送操作参数.
+        /// </summary>
+        /// <param name="operationParam">操作参数.</param>
+        private void SendOperationParam(OperationParam operationParam)
+        {
+            if (operationParam.Width > 0 && operationParam.Height > 0)
+            {
+                OperationElement?.Invoke(operationParam);
+                LeftTopX = operationParam.Left;
+                LeftTopY = operationParam.Top;
+                RightBottomX = LeftTopX + operationParam.Width;
+                RightBottomY = LeftTopY + operationParam.Height;
+                RefreshBorderLineDraw(this, new DependencyPropertyChangedEventArgs());
+            }
+        }
+
         #endregion
 
         #region Public Methods and Members
 
-        public Action? SizeChange;
+        public Action<OperationParam>? OperationElement;
 
-        public Action<OperationParam>? MoveElement;
-
-        public Action? MoveElementOver;
+        public Func<Point, Point>? GetNearestPoint;
 
         #endregion
 
         #region Event
 
-        bool isSelectedPoint = false;
+        bool isMove = false;
         bool isOperation = false;
         Point selectedPoint;
         Point ordLeftTop;
         public void MouseDownEventFunc(object sender, MouseButtonEventArgs e)
         {
             var point = e.GetPosition(this);
+            selectedPoint = point;
             if (curBorPointEnum == BorderPointsEnum.None)
             {
                 if (PointIsInsideRectangle(point))
@@ -503,15 +563,12 @@ namespace SymbolEdit.MyElemnent
                     this.Cursor = Cursors.ScrollAll;
                     if (this.curElement != null)
                         this.curElement.Cursor = Cursors.ScrollAll;
-                    isSelectedPoint = true;
-                    selectedPoint = point;
+                    isMove = true;
                     ordLeftTop = new Point(LeftTopX, LeftTopY);
-                    this.InvalidateVisual();
                 }
             }
             else
             {
-                selectedPoint = point;
                 isOperation = true;
             }
         }
@@ -519,26 +576,13 @@ namespace SymbolEdit.MyElemnent
         public void MouseMoveEventFunc(object sender, MouseEventArgs e)
         {
             var point = e.GetPosition(this);
-            if (isSelectedPoint)
+            if (isMove)
             {
-                var leftTop = new Point(ordLeftTop.X + (point.X - selectedPoint.X), ordLeftTop.Y + (point.Y - selectedPoint.Y));
-                var operationParam = new OperationParam()
-                {
-                    Left = leftTop.X,
-                    Top = leftTop.Y,
-                    Width = RightBottomX - LeftTopX,
-                    Height = RightBottomY - LeftTopY,
-                };
-                MoveElement?.Invoke(operationParam);
-                LeftTopX = operationParam.Left;
-                LeftTopY = operationParam.Top;
-                RightBottomX = LeftTopX + operationParam.Width;
-                RightBottomY = LeftTopY + operationParam.Height;
-                RefreshBorderLineDraw(this, new DependencyPropertyChangedEventArgs());
+                MoveElementFunc(IsGetNearestPoint(point, IsMovingGetNearestPoint));
             }
             else if (isOperation)
             {
-                Operation(curBorPointEnum, point);
+                OperationElementFunc(curBorPointEnum, IsGetNearestPoint(point, IsOperationingGetNearestPoint));
             }
             else
             {
@@ -549,10 +593,9 @@ namespace SymbolEdit.MyElemnent
 
         public void MouseUpEventFunc(object sender, MouseButtonEventArgs e)
         {
-            if (isSelectedPoint)
+            if (isMove)
             {
-                MoveElementOver?.Invoke();
-                isSelectedPoint = false;
+                isMove = false;
             }
             if (isOperation)
             {
@@ -562,7 +605,7 @@ namespace SymbolEdit.MyElemnent
 
         private void MouseLeaveEventFunc(object sender, MouseEventArgs e)
         {
-            if (!isSelectedPoint && !isOperation)
+            if (!isMove && !isOperation)
                 SetCursor(BorderPointsEnum.None);
         }
 

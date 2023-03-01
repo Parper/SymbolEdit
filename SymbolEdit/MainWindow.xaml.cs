@@ -25,7 +25,8 @@ namespace SymbolEdit
         {
             InitializeComponent();
             this.canvas.SizeChanged += MainWindow_SizeChanged;
-            borderLine.MoveElement += MoveElement;
+            borderLine.OperationElement += MoveElement;
+            borderLine.GetNearestPoint = GetNearestPoint;
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -75,7 +76,7 @@ namespace SymbolEdit
             {
                 if (e.Source is Shape shape)
                 {
-                    borderLine.SetCurElement(shape);
+                    borderLine.SetCurElement(canvas);
                     var x1 = Canvas.GetLeft(shape);
                     var y1 = Canvas.GetTop(shape);
                     borderLine.LeftTopX = x1;
@@ -102,7 +103,6 @@ namespace SymbolEdit
             //}
         }
 
-
         private void MoveElement(OperationParam operationParam)
         {
             if (ordShape != null)
@@ -114,5 +114,9 @@ namespace SymbolEdit
             }
         }
 
+        private Point GetNearestPoint(Point point)
+        {
+            return gridLine.GetNearestPoint(point);
+        }
     }
 }
