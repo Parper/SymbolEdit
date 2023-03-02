@@ -27,12 +27,28 @@ namespace SymbolEdit
             this.canvas.SizeChanged += MainWindow_SizeChanged;
             borderLine.OperationElement += MoveElement;
             borderLine.GetNearestPoint = GetNearestPoint;
+            borderLine.SetCurElement(canvas);
+            myElemnentBases.Add(line);
         }
+
+        private List<MyElemnentBase> myElemnentBases = new List<MyElemnentBase>();
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            gridLine.Height = e.NewSize.Height;
-            gridLine.Width = e.NewSize.Width;
+            var width = e.NewSize.Width;
+            var height = e.NewSize.Height;
+            gridLine.Width = width;
+            gridLine.Height = height;
+            myElemnentBases.ForEach(x => x.SetRectRelativeLocation(width, height));
+            if (ordShape is MyElemnentBase myElemnent)
+            {
+                var operation = myElemnent.GetLocationAndSize();
+                borderLine.LeftTopX = operation.Left;
+                borderLine.LeftTopY = operation.Top;
+                borderLine.RightBottomX = operation.Left + operation.Width;
+                borderLine.RightBottomY = operation.Top + operation.Height;
+                return;
+            }
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -76,7 +92,6 @@ namespace SymbolEdit
             {
                 if (e.Source is Shape shape)
                 {
-                    borderLine.SetCurElement(canvas);
                     var x1 = Canvas.GetLeft(shape);
                     var y1 = Canvas.GetTop(shape);
                     borderLine.LeftTopX = x1;
@@ -107,6 +122,12 @@ namespace SymbolEdit
         {
             if (ordShape != null)
             {
+                if (ordShape is MyElemnentBase myElemnent)
+                {
+                    myElemnent.SetLocationAndSize(operationParam);
+                    return;
+                }
+
                 Canvas.SetLeft(ordShape, operationParam.Left);
                 Canvas.SetTop(ordShape, operationParam.Top);
                 ordShape.Width = operationParam.Width;

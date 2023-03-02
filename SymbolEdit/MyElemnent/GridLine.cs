@@ -108,6 +108,11 @@ namespace SymbolEdit.MyElemnent
         protected override void OnRender(DrawingContext drawingContext)
         {
             this.UpdateInterval();
+            if (!this.Verify())
+            {
+                return;
+            }
+
             switch (GridLineStyle)
             {
                 case GridLineStyle.Point:
@@ -134,16 +139,16 @@ namespace SymbolEdit.MyElemnent
         /// <returns></returns>
         internal Point GetNearestPoint(Point point)
         {
-            var xValue = point.X % rowInterval;
-            var yValue = point.Y % columnInterval;
-            int xIndex = Convert.ToInt32((point.X - xValue) / rowInterval);
-            int yIndex = Convert.ToInt32((point.Y - yValue) / columnInterval);
-            if (xValue > rowInterval / 2)
+            var xValue = point.X % columnInterval;
+            var yValue = point.Y % rowInterval;
+            int xIndex = Convert.ToInt32((point.X - xValue) / columnInterval);
+            int yIndex = Convert.ToInt32((point.Y - yValue) / rowInterval);
+            if (xValue > columnInterval / 2)
                 xIndex++;
-            if (yValue > columnInterval / 2)
+            if (yValue > rowInterval / 2)
                 yIndex++;
-            var x = xIndex * rowInterval;
-            var y = yIndex * columnInterval;
+            var x = xIndex * columnInterval;
+            var y = yIndex * rowInterval;
 
             return new Point(x, y);
         }
@@ -169,9 +174,9 @@ namespace SymbolEdit.MyElemnent
         {
             var linePen = new Pen(Stroke, StrokeThickness);
             for (int i = 0; i <= Row; i++)
-                drawingContext.DrawLine(linePen, new Point(rowInterval * i, 0), new Point(rowInterval * i, Height));
+                drawingContext.DrawLine(linePen, new Point(0, rowInterval * i), new Point(Width, rowInterval * i));
             for (int i = 0; i <= Column; i++)
-                drawingContext.DrawLine(linePen, new Point(0, columnInterval * i), new Point(Width, columnInterval * i));
+                drawingContext.DrawLine(linePen, new Point(columnInterval * i, 0), new Point(columnInterval * i, Height));
         }
 
         private void DrawPoint(DrawingContext drawingContext)
@@ -180,10 +185,20 @@ namespace SymbolEdit.MyElemnent
             {
                 for (int j = 0; j <= Column; j++)
                 {
-                    var point = new Point(rowInterval * i, columnInterval * j);
+                    var point = new Point(columnInterval * j, rowInterval * i);
                     drawingContext.DrawEllipse(PointColor, new Pen(PointColor, PointSize), point, PointSize, PointSize);
                 }
             }
+        }
+
+        private bool Verify()
+        {
+            if (double.IsNaN(rowInterval) || double.IsNaN(columnInterval) || rowInterval == 0 || columnInterval == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
@@ -195,13 +210,13 @@ namespace SymbolEdit.MyElemnent
         /// </summary>
         public void UpdateInterval()
         {
-            rowInterval = Width / Row;
-            columnInterval = Height / Column;
+            rowInterval = Height / Row;
+            columnInterval = Width / Column;
         }
 
         #endregion
     }
-    
+
     public enum GridLineStyle
     {
         /// <summary>

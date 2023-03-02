@@ -12,6 +12,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
+            <RowDefinition Height="35" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
@@ -58,23 +59,52 @@
 
         </StackPanel>
 
+        <!-- 添加元素 -->
+        <StackPanel Grid.Row="1">
+
+        </StackPanel>
+
         <Border BorderThickness="1"
                 Margin="10"
-                Grid.Row="1">
+                Grid.Row="2">
             <!--Cursor="SizeWE"-->
             <Canvas x:Name="canvas"
                     Background="Transparent"
                     PreviewMouseDown="Canvas_MouseDown"
                     PreviewMouseMove="Canvas_MouseMove">
 
-                <Line Panel.ZIndex="10"
+                <TextBlock Text="文本"
+                           Width="50"
+                           Height="18"
+                           Canvas.Left="300"
+                           Canvas.Top="45" />
+
+                <myelemnent:MyLine Canvas.Left="200"
+                                   x:Name="line"
+                                   Canvas.Top="45"
+                                   Width="100"
+                                   Height="100"
+                                   X1="0"
+                                   Y1="0"
+                                   X2="100"
+                                   Y2="100"
+                                   CanvasWidht="730"
+                                   CanvasHeight="400"
+                                   Stroke="Green"
+                                   StrokeThickness="3" />
+
+                <!--<Line Panel.ZIndex="10"
                       x:Name="line"
+                      Canvas.Left="200"
+                      Canvas.Top="45"
                       X1="0"
                       Y1="0"
                       X2="100"
                       Y2="100"
+                      Width="100"
+                      Height="100"
                       Stroke="Green"
-                      StrokeThickness="3" />
+                      StrokeThickness="3" />-->
 
                 <Ellipse Fill="Red"
                          x:Name="ellipse"
