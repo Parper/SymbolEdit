@@ -10,7 +10,15 @@ namespace SymbolEdit.MyElemnent
 {
     public class MyLine : MyElemnentBase
     {
-        public bool IsGetPointRelativeLocation { get; private set; } = true;
+
+        #region Constructors
+
+        public MyLine() : base(2)
+        {
+
+        }
+
+        #endregion
 
         #region Dependent attribute
 
@@ -22,7 +30,7 @@ namespace SymbolEdit.MyElemnent
 
         // Using a DependencyProperty as the backing store for X1.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty X1Property =
-            DependencyProperty.Register("X1", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshLineDraw)));
+            DependencyProperty.Register("X1", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshElemnentDraw)));
 
         public double Y1
         {
@@ -32,7 +40,7 @@ namespace SymbolEdit.MyElemnent
 
         // Using a DependencyProperty as the backing store for Y1.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty Y1Property =
-            DependencyProperty.Register("Y1", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshLineDraw)));
+            DependencyProperty.Register("Y1", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshElemnentDraw)));
 
         public double X2
         {
@@ -42,7 +50,7 @@ namespace SymbolEdit.MyElemnent
 
         // Using a DependencyProperty as the backing store for X2.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty X2Property =
-            DependencyProperty.Register("X2", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshLineDraw)));
+            DependencyProperty.Register("X2", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshElemnentDraw)));
 
         public double Y2
         {
@@ -52,38 +60,30 @@ namespace SymbolEdit.MyElemnent
 
         // Using a DependencyProperty as the backing store for Y2.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty Y2Property =
-            DependencyProperty.Register("Y2", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshLineDraw)));
+            DependencyProperty.Register("Y2", typeof(double), typeof(MyLine), new PropertyMetadata(double.NaN, new PropertyChangedCallback(RefreshElemnentDraw)));
 
 
         #endregion
 
         #region Private  Methods and Properties
 
-        /// <summary>
-        /// 记录相对位置.
-        /// </summary>
-        private readonly double[] pointRelativeLocation = new double[4] { double.NaN, double.NaN, double.NaN, double.NaN, };
 
-        private Geometry geometry = Geometry.Empty;
+        #endregion
 
-        private static void RefreshLineDraw(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MyLine myLine)
-            {
-                if (myLine.IsGetPointRelativeLocation)
-                {
-                    myLine.GetPointRelativeLocation();
-                }
-                myLine.GetGeometry();
-                myLine.InvalidateVisual();
-            }
-        }
+
+        #region Protected Members 
+
+
+        #endregion
+
+
+        #region public Members 
 
         /// <summary>
         /// 验证点.
         /// </summary>
         /// <returns></returns>
-        private bool VerifyPoint()
+        public override bool VerifyPoint()
         {
             if (double.IsNaN(X1) || double.IsNaN(Y1) || double.IsNaN(X2) || double.IsNaN(Y2))
             {
@@ -93,30 +93,18 @@ namespace SymbolEdit.MyElemnent
             return true;
         }
 
-        #endregion
-
-
-        #region protected Members 
-
-        protected override Geometry DefiningGeometry => geometry;
-
-        #endregion
-
-
-        #region public Members 
-
         public override void PointAtuoAdaptation()
         {
-            if (!this.VerifyDoubleArrayExistNaN(pointRelativeLocation))
+            if (!this.VerifyRelativePointArrayExistNaN(PointRelativeLocation))
             {
                 return;
             }
 
             IsGetPointRelativeLocation = false;
-            X1 = pointRelativeLocation[0] * Width;
-            Y1 = pointRelativeLocation[1] * Height;
-            X2 = pointRelativeLocation[2] * Width;
-            Y2 = pointRelativeLocation[3] * Height;
+            X1 = PointRelativeLocation[0].X * Width;
+            Y1 = PointRelativeLocation[0].Y * Height;
+            X2 = PointRelativeLocation[1].X * Width;
+            Y2 = PointRelativeLocation[1].Y * Height;
             IsGetPointRelativeLocation = true;
         }
 
@@ -127,40 +115,20 @@ namespace SymbolEdit.MyElemnent
                 return;
             }
 
-            pointRelativeLocation[0] = X1 / Width;
-            pointRelativeLocation[1] = Y1 / Height;
-            pointRelativeLocation[2] = X2 / Width;
-            pointRelativeLocation[3] = Y2 / Height;
+            PointRelativeLocation[0].X = X1 / Width;
+            PointRelativeLocation[0].Y = Y1 / Height;
+            PointRelativeLocation[1].X = X2 / Width;
+            PointRelativeLocation[1].Y = Y2 / Height;
         }
 
-        public void GetGeometry()
+        protected override void OnRender(DrawingContext drawingContext)
         {
-            //PathFigure myPathFigure = new PathFigure();
-            //myPathFigure.StartPoint = new Point(10, 50);
-            //myPathFigure.Segments.Add(
-            //    new BezierSegment(
-            //        new Point(100, 0),
-            //        new Point(200, 200),
-            //        new Point(300, 100),
-            //        true /* IsStroked */  ));
-            //myPathFigure.Segments.Add(
-            //    new LineSegment(
-            //        new Point(400, 100),
-            //        true /* IsStroked */ ));
-            //myPathFigure.Segments.Add(
-            //    new ArcSegment(
-            //        new Point(200, 100),
-            //        new Size(50, 50),
-            //        45,
-            //        true, /* IsLargeArc */
-            //        SweepDirection.Clockwise,
-            //        true /* IsStroked */ ));
+            if (!this.VerifyPoint())
+            {
+                return;
+            }
 
-            ///// Create a PathGeometry to contain the figure.
-            //PathGeometry myPathGeometry = new PathGeometry();
-            //myPathGeometry.Figures.Add(myPathFigure);
-
-            geometry = this.VerifyPoint() ? new LineGeometry(new Point(X1, Y1), new Point(X2, Y2)) : Geometry.Empty;
+            drawingContext.DrawLine(new Pen(Stroke, StrokeThickness), new Point(X1, Y1), new Point(X2, Y2));
         }
 
         #endregion

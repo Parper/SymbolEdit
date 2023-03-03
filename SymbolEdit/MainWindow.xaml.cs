@@ -29,6 +29,8 @@ namespace SymbolEdit
             borderLine.GetNearestPoint = GetNearestPoint;
             borderLine.SetCurElement(canvas);
             myElemnentBases.Add(line);
+            myElemnentBases.Add(myTriangle);
+            myElemnentBases.Add(myText);
         }
 
         private List<MyElemnentBase> myElemnentBases = new List<MyElemnentBase>();
@@ -40,7 +42,7 @@ namespace SymbolEdit
             gridLine.Width = width;
             gridLine.Height = height;
             myElemnentBases.ForEach(x => x.SetRectRelativeLocation(width, height));
-            if (ordShape is MyElemnentBase myElemnent)
+            if (ordMyElemnent is MyElemnentBase myElemnent)
             {
                 var operation = myElemnent.GetLocationAndSize();
                 borderLine.LeftTopX = operation.Left;
@@ -85,28 +87,28 @@ namespace SymbolEdit
 
         private bool isLeftDown = false;
         private bool isRightDown = false;
-        private Shape? ordShape;
+        private MyElemnentBase? ordMyElemnent;
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                if (e.Source is Shape shape)
+                if (e.Source is MyElemnentBase myElemnent)
                 {
-                    var x1 = Canvas.GetLeft(shape);
-                    var y1 = Canvas.GetTop(shape);
+                    var x1 = Canvas.GetLeft(myElemnent);
+                    var y1 = Canvas.GetTop(myElemnent);
                     borderLine.LeftTopX = x1;
                     borderLine.LeftTopY = y1;
-                    borderLine.RightBottomX = x1 + shape.Width;
-                    borderLine.RightBottomY = y1 + shape.Height;
+                    borderLine.RightBottomX = x1 + myElemnent.Width;
+                    borderLine.RightBottomY = y1 + myElemnent.Height;
                     borderLine.IsVisibility = true;
-                    ordShape = shape;
+                    ordMyElemnent = myElemnent;
                 }
             }
             else if (e.ChangedButton == MouseButton.Right)
             {
-                if (ordShape != null)
+                if (ordMyElemnent != null)
                 {
-                    ordShape = null;
+                    ordMyElemnent = null;
                 }
                 borderLine.IsVisibility = false;
             }
@@ -120,18 +122,18 @@ namespace SymbolEdit
 
         private void MoveElement(OperationParam operationParam)
         {
-            if (ordShape != null)
+            if (ordMyElemnent != null)
             {
-                if (ordShape is MyElemnentBase myElemnent)
+                if (ordMyElemnent is MyElemnentBase myElemnent)
                 {
                     myElemnent.SetLocationAndSize(operationParam);
                     return;
                 }
 
-                Canvas.SetLeft(ordShape, operationParam.Left);
-                Canvas.SetTop(ordShape, operationParam.Top);
-                ordShape.Width = operationParam.Width;
-                ordShape.Height = operationParam.Height;
+                Canvas.SetLeft(ordMyElemnent, operationParam.Left);
+                Canvas.SetTop(ordMyElemnent, operationParam.Top);
+                ordMyElemnent.Width = operationParam.Width;
+                ordMyElemnent.Height = operationParam.Height;
             }
         }
 

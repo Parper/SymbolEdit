@@ -69,15 +69,10 @@
                 Grid.Row="2">
             <!--Cursor="SizeWE"-->
             <Canvas x:Name="canvas"
+                    ClipToBounds="True"
                     Background="Transparent"
                     PreviewMouseDown="Canvas_MouseDown"
                     PreviewMouseMove="Canvas_MouseMove">
-
-                <TextBlock Text="文本"
-                           Width="50"
-                           Height="18"
-                           Canvas.Left="300"
-                           Canvas.Top="45" />
 
                 <myelemnent:MyLine Canvas.Left="200"
                                    x:Name="line"
@@ -93,25 +88,44 @@
                                    Stroke="Green"
                                    StrokeThickness="3" />
 
-                <!--<Line Panel.ZIndex="10"
-                      x:Name="line"
-                      Canvas.Left="200"
-                      Canvas.Top="45"
-                      X1="0"
-                      Y1="0"
-                      X2="100"
-                      Y2="100"
-                      Width="100"
-                      Height="100"
-                      Stroke="Green"
-                      StrokeThickness="3" />-->
+                <myelemnent:MyText x:Name="myText"
+                                   Canvas.Left="200"
+                                   Canvas.Top="300"
+                                   Width="100"
+                                   Height="50"
+                                   X1="0"
+                                   Y1="0"
+                                   X2="100"
+                                   Y2="100"
+                                   CanvasWidht="730"
+                                   CanvasHeight="400"
+                                   MaxFontSize="1000"
+                                   Text="Test Width"
+                                   FontSize="16"
+                                   Stroke="Green"
+                                   StrokeThickness="3" />
+
+                <myelemnent:MyTriangle x:Name="myTriangle"
+                                       Canvas.Left="400"
+                                       Canvas.Top="45"
+                                       Width="100"
+                                       Height="100"
+                                       X1="50"
+                                       Y1="0"
+                                       X2="0"
+                                       Y2="95"
+                                       X3="100"
+                                       Y3="95"
+                                       CanvasWidht="730"
+                                       CanvasHeight="400"
+                                       Stroke="Green"
+                                       StrokeThickness="3" />
 
                 <Ellipse Fill="Red"
                          x:Name="ellipse"
                          Stroke="Green"
                          Width="100"
                          Height="100"
-                         Panel.ZIndex="1"
                          Canvas.Left="65"
                          Canvas.Top="45" />
 
