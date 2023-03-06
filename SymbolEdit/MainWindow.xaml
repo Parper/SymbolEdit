@@ -122,6 +122,7 @@
                                        StrokeThickness="3" />
 
                 <Ellipse Fill="Red"
+                         Visibility="Collapsed"
                          x:Name="ellipse"
                          Stroke="Green"
                          Width="100"
@@ -130,6 +131,7 @@
                          Canvas.Top="45" />
 
                 <Rectangle Fill="#500000ff"
+                           Visibility="Collapsed"
                            RadiusX="27.9"
                            RadiusY="27.9"
                            Stroke="Azure"

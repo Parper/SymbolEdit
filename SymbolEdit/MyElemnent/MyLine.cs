@@ -10,7 +10,6 @@ namespace SymbolEdit.MyElemnent
 {
     public class MyLine : MyElemnentBase
     {
-
         #region Constructors
 
         public MyLine() : base(2)
@@ -70,12 +69,10 @@ namespace SymbolEdit.MyElemnent
 
         #endregion
 
-
         #region Protected Members 
 
 
         #endregion
-
 
         #region public Members 
 

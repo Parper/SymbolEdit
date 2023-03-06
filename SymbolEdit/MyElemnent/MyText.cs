@@ -66,7 +66,6 @@ namespace SymbolEdit.MyElemnent
 
         #endregion
 
-
         #region Protected Members 
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -87,7 +86,6 @@ namespace SymbolEdit.MyElemnent
         }
 
         #endregion
-
 
         #region Private Members 
 
@@ -156,6 +154,5 @@ namespace SymbolEdit.MyElemnent
         }
 
         #endregion
-
     }
 }
