@@ -81,8 +81,7 @@
             <Canvas x:Name="canvas"
                     ClipToBounds="True"
                     Background="Transparent"
-                    KeyDown="Canvas_KeyDown"
-                    PreviewMouseDown="Canvas_MouseDown"
+                    PreviewMouseDown="Canvas_PreviewMouseDown"
                     PreviewMouseMove="Canvas_PreviewMouseMove"
                     PreviewMouseUp="Canvas_PreviewMouseUp">
 
@@ -132,25 +131,6 @@
                                        CanvasHeight="400"
                                        Stroke="Green"
                                        StrokeThickness="3" />
-
-                <Ellipse Fill="Red"
-                         Visibility="Collapsed"
-                         x:Name="ellipse"
-                         Stroke="Green"
-                         Width="100"
-                         Height="100"
-                         Canvas.Left="65"
-                         Canvas.Top="45" />
-
-                <Rectangle Fill="#500000ff"
-                           Visibility="Collapsed"
-                           RadiusX="27.9"
-                           RadiusY="27.9"
-                           Stroke="Azure"
-                           Width="250"
-                           Height="200"
-                           Canvas.Left="210"
-                           Canvas.Top="100" />
 
                 <myelemnent:BorderLine x:Name="borderLine"
                                        IsMovingGetNearestPoint="False"

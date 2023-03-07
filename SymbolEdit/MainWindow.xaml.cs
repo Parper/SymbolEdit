@@ -80,7 +80,7 @@ namespace SymbolEdit
 
         private int selectedIndex = -1;
         private MyElemnentBase? ordMyElemnent;
-        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Canvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
@@ -135,14 +135,6 @@ namespace SymbolEdit
             {
                 selectedIndex = -1;
                 e.Handled = true;
-            }
-        }
-
-        private void Canvas_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.F4)
-            {
-
             }
         }
 

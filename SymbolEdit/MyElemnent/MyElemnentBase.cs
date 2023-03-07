@@ -145,7 +145,6 @@ namespace SymbolEdit.MyElemnent
             }
         }
 
-
         #endregion
 
         #region Private Methods and Properties

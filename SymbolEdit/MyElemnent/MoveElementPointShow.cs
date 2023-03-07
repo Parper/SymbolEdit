@@ -53,7 +53,6 @@ namespace SymbolEdit.MyElemnent
         public static readonly DependencyProperty EllipseSizeProperty =
             DependencyProperty.Register("EllipseSize", typeof(double), typeof(MoveElementPointShow), new PropertyMetadata(3.0, new PropertyChangedCallback(RefreshMoveElementPointShowDraw)));
 
-
         private static void RefreshMoveElementPointShowDraw(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is MoveElementPointShow moveElementPointShow)
@@ -66,8 +65,9 @@ namespace SymbolEdit.MyElemnent
             }
         }
 
-
         #endregion
+
+        #region Public Methods and Properties
 
         public override void GetPointRelativeLocation()
         {
@@ -118,7 +118,6 @@ namespace SymbolEdit.MyElemnent
             return true;
         }
 
-
         protected override void OnRender(DrawingContext drawingContext)
         {
             if (!this.VerifyPoint() || !IsVisibility)
@@ -132,5 +131,6 @@ namespace SymbolEdit.MyElemnent
             }
         }
 
+        #endregion
     }
 }
