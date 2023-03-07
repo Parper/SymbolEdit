@@ -1,4 +1,5 @@
 ﻿using SymbolEdit.Helper;
+using SymbolEdit.SelectableElement;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -137,7 +138,6 @@ namespace SymbolEdit.MyElemnent
             return FontSize;
         }
 
-
         private FormattedText MeasureTextWidth(double fontSize, double pixelsPerDip)
         {
             var formattedText = new FormattedText(
@@ -151,6 +151,15 @@ namespace SymbolEdit.MyElemnent
            );
 
             return formattedText;
+        }
+
+        #endregion
+
+        #region Public Members
+
+        public override List<Point> GetSelectablePoints()
+        {
+            return new List<Point>();
         }
 
         #endregion

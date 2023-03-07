@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,11 +23,7 @@ namespace SymbolEdit.MyElemnent
 
         public MyElemnentBase(int count)
         {
-            PointRelativeLocation = new RelativePoint[count];
-            for (int i = 0; i < count; i++)
-            {
-                PointRelativeLocation[i] = new RelativePoint();
-            }
+            SetPointRelativeLocation(count);
         }
 
         #endregion
@@ -141,6 +136,15 @@ namespace SymbolEdit.MyElemnent
             return true;
         }
 
+        public void SetPointRelativeLocation(int count)
+        {
+            PointRelativeLocation = new RelativePoint[count];
+            for (int i = 0; i < count; i++)
+            {
+                PointRelativeLocation[i] = new RelativePoint();
+            }
+        }
+
 
         #endregion
 
@@ -163,7 +167,7 @@ namespace SymbolEdit.MyElemnent
 
         #region Protected Members 
 
-        protected readonly RelativePoint[] PointRelativeLocation;
+        protected RelativePoint[] PointRelativeLocation { get; private set; }
 
         protected static void RefreshElemnentDraw(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -178,6 +182,40 @@ namespace SymbolEdit.MyElemnent
         }
 
         #endregion
+
+        #region Internal Methods 
+
+        /// <summary>
+        /// 点是否在矩形内
+        /// </summary>
+        /// <param name="point">点</param>
+        /// <returns>在矩形中返回true，否则返回false.</returns>
+        internal bool PointIsInsideRectangle(Point point)
+        {
+            var operation = GetLocationAndSize();
+            if (point.X < operation.Left || point.Y < operation.Top || point.X > operation.Left + operation.Width || point.Y > operation.Top + operation.Height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 点是否在矩形内.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        internal bool PointIsInsideRectangle(Rect rect, Point point)
+        {
+            if (point.X < rect.X || point.Y < rect.Y || point.X > rect.X + rect.Width || point.Y > rect.Y + rect.Height)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         internal void GetRectRelativeLocation()
         {
@@ -217,5 +255,6 @@ namespace SymbolEdit.MyElemnent
             CanvasHeight = height;
         }
 
+        #endregion
     }
 }

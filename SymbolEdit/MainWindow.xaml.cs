@@ -1,4 +1,5 @@
 ﻿using SymbolEdit.MyElemnent;
+using SymbolEdit.SelectableElement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,12 +29,23 @@ namespace SymbolEdit
             borderLine.OperationElement += MoveElement;
             borderLine.GetNearestPoint = GetNearestPoint;
             borderLine.SetCurElement(canvas);
+            myElemnentBases.Add(moveElementPointShow);
             myElemnentBases.Add(line);
             myElemnentBases.Add(myTriangle);
             myElemnentBases.Add(myText);
         }
 
+        private bool IsMoveElementPoint = false;
+
         private List<MyElemnentBase> myElemnentBases = new List<MyElemnentBase>();
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox combo && gridLine != null)
+            {
+                gridLine.GridLineStyle = (GridLineStyle)combo.SelectedIndex;
+            }
+        }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -49,57 +61,44 @@ namespace SymbolEdit
                 borderLine.LeftTopY = operation.Top;
                 borderLine.RightBottomX = operation.Left + operation.Width;
                 borderLine.RightBottomY = operation.Top + operation.Height;
+                if (moveElementPointShow.IsVisibility && ordMyElemnent is IMoveElementPoint moveElement)
+                {
+                    moveElementPointShow.Points = moveElement.GetSelectablePoints();
+                    OperationParam operationParam = new()
+                    {
+                        Left = Canvas.GetLeft(myElemnent),
+                        Top = Canvas.GetTop(myElemnent),
+                        Width = myElemnent.Width,
+                        Height = myElemnent.Height,
+                    };
+                    moveElementPointShow.SetLocationAndSize(operationParam);
+                }
                 return;
             }
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ComboBox combo && gridLine != null)
-            {
-                gridLine.GridLineStyle = (GridLineStyle)combo.SelectedIndex;
-            }
-        }
 
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (gridLine != null && (isLeftDown || isRightDown))
-            {
-                var ePoint = e.GetPosition(canvas);
-                var point = gridLine.GetNearestPoint(ePoint);
-                if (point.X == double.NaN || point.Y == double.NaN)
-                {
-                    return;
-                }
-                if (isLeftDown)
-                {
-                    line.X1 = point.X;
-                    line.Y1 = point.Y;
-                }
-                else if (isRightDown)
-                {
-                    line.X2 = point.X;
-                    line.Y2 = point.Y;
-                }
-
-            }
-        }
-
-        private bool isLeftDown = false;
-        private bool isRightDown = false;
+        private int selectedIndex = -1;
         private MyElemnentBase? ordMyElemnent;
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                if (e.Source is MyElemnentBase myElemnent)
+                if (IsMoveElementPoint && ordMyElemnent is IMoveElementPoint moveElement)
                 {
-                    var x1 = Canvas.GetLeft(myElemnent);
-                    var y1 = Canvas.GetTop(myElemnent);
-                    borderLine.LeftTopX = x1;
-                    borderLine.LeftTopY = y1;
-                    borderLine.RightBottomX = x1 + myElemnent.Width;
-                    borderLine.RightBottomY = y1 + myElemnent.Height;
+                    var isSelected = moveElement.IsSelectedPoint(e.GetPosition(ordMyElemnent), moveElementPointShow.EllipseSize);
+                    if (isSelected.Item1)
+                    {
+                        selectedIndex = isSelected.Item2;
+                    }
+                    e.Handled = true;
+                }
+                else if (e.Source is MyElemnentBase myElemnent)
+                {
+                    borderLine.LeftTopX = Canvas.GetLeft(myElemnent);
+                    borderLine.LeftTopY = Canvas.GetTop(myElemnent);
+                    borderLine.RightBottomX = borderLine.LeftTopX + myElemnent.Width;
+                    borderLine.RightBottomY = borderLine.LeftTopY + myElemnent.Height;
                     borderLine.IsVisibility = true;
                     ordMyElemnent = myElemnent;
                 }
@@ -113,11 +112,38 @@ namespace SymbolEdit
                 borderLine.IsVisibility = false;
             }
 
-            //if (e.ButtonState == MouseButtonState.Pressed)
-            //{
-            //    isLeftDown = e.ChangedButton == MouseButton.Left;
-            //    isRightDown = e.ChangedButton == MouseButton.Right;
-            //}
+            SetMoveElementPointStart();
+        }
+
+        private void Canvas_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (ordMyElemnent is MyElemnentBase myElemnent && ordMyElemnent is IMoveElementPoint moveElement && selectedIndex != -1)
+            {
+                var point = e.GetPosition(ordMyElemnent);
+                var operation = myElemnent.GetLocationAndSize();
+                if (borderLine.PointIsInsideRectangle(new Point(operation.Left + point.X, operation.Top + point.Y)))
+                {
+                    moveElement.MoveElementPoint(selectedIndex, point);
+                    moveElementPointShow.Points = moveElement.GetSelectablePoints();
+                }
+            }
+        }
+
+        private void Canvas_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (selectedIndex != -1)
+            {
+                selectedIndex = -1;
+                e.Handled = true;
+            }
+        }
+
+        private void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F4)
+            {
+
+            }
         }
 
         private void MoveElement(OperationParam operationParam)
@@ -141,5 +167,42 @@ namespace SymbolEdit
         {
             return gridLine.GetNearestPoint(point);
         }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox check)
+            {
+                IsMoveElementPoint = (bool)check.IsChecked!;
+            }
+            SetMoveElementPointStart();
+        }
+
+        private void SetMoveElementPointStart()
+        {
+            if (IsMoveElementPoint &&
+                ordMyElemnent is MyElemnentBase myElemnent &&
+                ordMyElemnent is IMoveElementPoint moveElementPoint &&
+                moveElementPoint.GetSelectablePoints().Any())
+            {
+                moveElementPointShow.Points = moveElementPoint.GetSelectablePoints();
+                OperationParam operationParam = new()
+                {
+                    Left = Canvas.GetLeft(myElemnent),
+                    Top = Canvas.GetTop(myElemnent),
+                    Width = myElemnent.Width,
+                    Height = myElemnent.Height,
+                };
+                moveElementPointShow.SetLocationAndSize(operationParam);
+                moveElementPointShow.IsVisibility = true;
+            }
+            else
+            {
+                // 显示点元素隐藏
+                moveElementPointShow.IsVisibility = false;
+                checkBox.IsChecked = false;
+                IsMoveElementPoint = false;
+            }
+        }
+
     }
 }

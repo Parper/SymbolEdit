@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using SymbolEdit.SelectableElement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -555,7 +556,7 @@ namespace SymbolEdit.MyElemnent
         public void MouseDownEventFunc(object sender, MouseButtonEventArgs e)
         {
             var point = e.GetPosition(this);
-            selectedPoint = point;
+            selectedPoint = point; 
             if (curBorPointEnum == BorderPointsEnum.None)
             {
                 if (PointIsInsideRectangle(point))

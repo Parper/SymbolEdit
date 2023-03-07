@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SymbolEdit.SelectableElement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using System.Windows.Media;
 
 namespace SymbolEdit.MyElemnent
 {
-    public class MyLine : MyElemnentBase
+    public class MyLine : MyElemnentBase, IMoveElementPoint
     {
         #region Constructors
 
@@ -74,7 +75,7 @@ namespace SymbolEdit.MyElemnent
 
         #endregion
 
-        #region public Members 
+        #region Public Members 
 
         /// <summary>
         /// 验证点.
@@ -127,6 +128,43 @@ namespace SymbolEdit.MyElemnent
 
             drawingContext.DrawLine(new Pen(Stroke, StrokeThickness), new Point(X1, Y1), new Point(X2, Y2));
         }
+
+        public (bool, int) IsSelectedPoint(Point curPoint, double siez)
+        {
+            var rect1 = new Rect(new Point(X1 - siez / 2, Y1 - siez / 2), new Size(siez, siez));
+            if (PointIsInsideRectangle(rect1, curPoint))
+            {
+                return (true, 0);
+            }
+
+            rect1 = new Rect(new Point(X2 - siez / 2, Y2 - siez / 2), new Size(siez, siez));
+            if (PointIsInsideRectangle(rect1, curPoint))
+            {
+                return (true, 1);
+            }
+
+            return (false, -1);
+        }
+
+        public void MoveElementPoint(int ordPointIndex, Point curPoint)
+        {
+            if (ordPointIndex == 0)
+            {
+                X1 = curPoint.X;
+                Y1 = curPoint.Y;
+            }
+            else if (ordPointIndex == 1)
+            {
+                X2 = curPoint.X;
+                Y2 = curPoint.Y;
+            }
+        }
+
+        public virtual List<Point> GetSelectablePoints()
+        {
+            return new List<Point>() { new Point(X1, Y1), new Point(X2, Y2) };
+        }
+
 
         #endregion
     }

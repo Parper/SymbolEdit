@@ -60,8 +60,18 @@
         </StackPanel>
 
         <!-- 添加元素 -->
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left"
+                    Orientation="Horizontal">
 
+            <CheckBox x:Name="checkBox"
+                      IsChecked="False"
+                      Checked="CheckBox_Checked"
+                      Unchecked="CheckBox_Checked"
+                      Width="120"
+                      Content="是否调整元素点"
+                      VerticalAlignment="Center" />
         </StackPanel>
 
         <Border BorderThickness="1"
@@ -71,18 +81,20 @@
             <Canvas x:Name="canvas"
                     ClipToBounds="True"
                     Background="Transparent"
+                    KeyDown="Canvas_KeyDown"
                     PreviewMouseDown="Canvas_MouseDown"
-                    PreviewMouseMove="Canvas_MouseMove">
+                    PreviewMouseMove="Canvas_PreviewMouseMove"
+                    PreviewMouseUp="Canvas_PreviewMouseUp">
 
                 <myelemnent:MyLine Canvas.Left="200"
                                    x:Name="line"
                                    Canvas.Top="45"
                                    Width="100"
                                    Height="100"
-                                   X1="0"
-                                   Y1="0"
-                                   X2="100"
-                                   Y2="100"
+                                   X1="10"
+                                   Y1="10"
+                                   X2="90"
+                                   Y2="90"
                                    CanvasWidht="730"
                                    CanvasHeight="400"
                                    Stroke="Green"
@@ -156,7 +168,15 @@
                                      StrokeThickness="1.2"
                                      PointColor="#305050ff"
                                      Column="20" />
-                <!--PointColor="#804183c4"-->
+
+                <myelemnent:MoveElementPointShow x:Name="moveElementPointShow"
+                                                 Panel.ZIndex="1"
+                                                 Stroke="#ff0000"
+                                                 IsVisibility="False"
+                                                 CanvasWidht="730"
+                                                 CanvasHeight="400"
+                                                 EllipseSize="5"
+                                                 StrokeThickness="1.2" />
 
             </Canvas>
         </Border>
