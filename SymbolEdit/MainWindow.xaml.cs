@@ -33,6 +33,8 @@ namespace SymbolEdit
             myElemnentBases.Add(line);
             myElemnentBases.Add(myTriangle);
             myElemnentBases.Add(myText);
+            myElemnentBases.Add(myRectangle);
+            myElemnentBases.Add(myEllipse);
         }
 
         private bool IsMoveElementPoint = false;
