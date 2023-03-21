@@ -289,9 +289,12 @@ namespace SymbolEdit.MyElemnent
                     top = point.Y;
                     break;
                 case BorderPointsEnum.RightTop:
-                    width += point.X - borderPoints!.RightTop.X;
-                    height -= point.Y - borderPoints!.RightTop.Y;
-                    top = point.Y;
+                    if (top != point.Y)
+                    {
+                        width += point.X - borderPoints!.RightTop.X;
+                        height -= point.Y - borderPoints!.RightTop.Y;
+                        top = point.Y;
+                    }
                     break;
                 case BorderPointsEnum.RightCentre:
                     width += point.X - borderPoints!.RightCentre.X;
@@ -304,13 +307,19 @@ namespace SymbolEdit.MyElemnent
                     height += point.Y - borderPoints!.BottomCentre.Y;
                     break;
                 case BorderPointsEnum.LeftBottom:
-                    width -= point.X - borderPoints!.LeftBottom.X;
-                    height += point.Y - borderPoints!.LeftBottom.Y;
-                    left = point.X;
+                    if (left != point.X)
+                    {
+                        width -= point.X - borderPoints!.LeftBottom.X;
+                        height += point.Y - borderPoints!.LeftBottom.Y;
+                        left = point.X;
+                    }
                     break;
                 case BorderPointsEnum.LeftCentre:
-                    width -= point.X - borderPoints!.LeftBottom.X;
-                    left = point.X;
+                    if (left != point.X)
+                    {
+                        width -= point.X - borderPoints!.LeftBottom.X;
+                        left = point.X;
+                    }
                     break;
             }
 
@@ -556,7 +565,7 @@ namespace SymbolEdit.MyElemnent
         public void MouseDownEventFunc(object sender, MouseButtonEventArgs e)
         {
             var point = e.GetPosition(this);
-            selectedPoint = point; 
+            selectedPoint = point;
             if (curBorPointEnum == BorderPointsEnum.None)
             {
                 if (PointIsInsideRectangle(point))
